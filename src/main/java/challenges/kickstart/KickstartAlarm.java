@@ -1,7 +1,7 @@
 package challenges.kickstart;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -41,32 +41,28 @@ public class KickstartAlarm {
 				}
 				System.out.println("Array created");
 				
-				//creating sub arrays
-				List<int[]> subArrays = new ArrayList<int[]>();
+				//Creating power map
+				Map<Integer, Long> powers = new HashMap<>(k);
+				for(int p = 0; p < k; p++) {
+					powers.put(p + 1, 0L);
+				}
+				
+				//creating sub arrays and powers
 				for(int b = 0; b < n; b++) {
 					for(int e = b; e < n; e++) {
-						int[] intArray = new int[e + 1 - b];
 						for(int g = 0; g <= (e - b); g++) {
-							intArray[g] = array[b + g];
+							int subA = array[b + g];
+							for(int h = 1; h <= k; h++) {
+								powers.put(h, (powers.get(h) + (long)(subA * (Math.pow(g + 1, h)))));
+							}
 						}
-						subArrays.add(intArray);
 					}
 				}
-				System.out.println("Sub-Arrays created");
+				System.out.println("Sub-Arrays and powers created");
 				
 				//Calculating power
 				long powerSum = 0;
-				for(int h = 1; h <= k; h++) {
-					long sum = 0;
-					for(int l = 0; l < subArrays.size(); l++) {
-						int[] temp = subArrays.get(l);
-						for(int m = 0; m < temp.length; m++) {
-							sum += (temp[m] * (Math.pow((m + 1), h)));
-						}
-					}
-					powerSum += sum;
-				}
-				
+				powerSum = powers.values().stream().mapToLong(p -> p).sum();
 				System.out.println("Case #" + i + ": " + (powerSum % 1000000007));
 			}
 		}
