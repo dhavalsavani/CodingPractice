@@ -1,4 +1,4 @@
-package challenges.kickstart;
+package challenges.kickstart.ks2019.practice;
 
 import java.io.File;
 import java.io.FileNotFoundException;
