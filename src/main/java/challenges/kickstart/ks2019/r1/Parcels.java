@@ -60,6 +60,7 @@ public class Parcels {
 										.mapToInt(s -> Integer.parseInt(s))
 										.toArray();
 					}
+					sc.close();
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				}
