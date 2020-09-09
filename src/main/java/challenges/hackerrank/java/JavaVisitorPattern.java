@@ -2,9 +2,11 @@ package challenges.hackerrank.java;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 enum Color {
     RED, GREEN
@@ -79,7 +81,8 @@ abstract class TreeVis
 
 class SumInLeavesVisitor extends TreeVis {
 	int sum = 0;
-    public int getResult() {
+    @Override
+	public int getResult() {
         return sum;
     }
 
@@ -93,10 +96,11 @@ class SumInLeavesVisitor extends TreeVis {
 }
 
 class ProductOfRedNodesVisitor extends TreeVis {
-	int product = 1;
+	private long product = 1;
 	
-    public int getResult() {
-        return product;
+    @Override
+	public int getResult() {
+        return (int) product;
     }
 
     public void visitNode(TreeNode node) {
@@ -116,6 +120,7 @@ class FancyVisitor extends TreeVis {
     int nonLeafSum = 0;
     int leafSum = 0;
 	
+	@Override
 	public int getResult() {
         return Math.abs(nonLeafSum - leafSum);
     }
@@ -137,87 +142,111 @@ class FancyVisitor extends TreeVis {
  * https://www.hackerrank.com/challenges/java-vistor-pattern/problem
  */
 public class JavaVisitorPattern {
-	
+
 	private static List<Tree> nodes;
-	private static List<Integer> nodeValues;
-	private static List<Color> colorValues;
-	private static Map<Integer, Integer> edges;
+    private static List<Integer> nodeValues;
+    private static List<Color> colorValues;
+    private static Map<Integer, Integer> edges;
+    private static Map<Integer, Set<Integer>> pcRelation = new HashMap<>();
   
     public static Tree solve() {
         try(Scanner s = new Scanner(System.in)) {
-        	//Taking number of Nodes
-        	int n = s.nextInt();
-        	s.nextLine();
-        	nodes = new ArrayList<>(n);
-        	nodeValues = new ArrayList<>(n);
-        	colorValues = new ArrayList<>(n);
-        	
-        	//Taking node values
-        	String[] values = s.nextLine().split("\\s");
-        	for(int i = 0; i < values.length; i++) {
-        		nodeValues.add(Integer.parseInt(values[i]));
-        	}
-        	
-        	//Taking node colors
-        	String[] colors = s.nextLine().split("\\s");
-        	for(int i = 0; i < colors.length; i++) {
-        		colorValues.add((Integer.parseInt(colors[i]) == 0) ? Color.RED : Color.GREEN);
-        	}
-        	
-        	//Taking Edges
-        	edges = new HashMap<>(n - 1);
-        	for(int j = 0; j < n - 1; j++) {
-        		int parent = s.nextInt() - 1;
-        		int child = s.nextInt() - 1;
-        		if(edges.containsKey(child)) {
-        			edges.put(parent, child);
-        		} else {
-        			edges.put(child, parent);
-        		}
-        	}
-        	
-        	//Adding TreeNodes
-        	//Adding First TreeNode
-        	nodes.add(new TreeNode(nodeValues.get(0), colorValues.get(0), 0));
-        	//Initializing list with nulls
-        	for(int i = 1; i < n; i++) {
-        		nodes.add(null);
-        	}
-        	for(int i = 1; i < n; i++) {
-        		if(nodes.get(i) == null) {
-        			createNode(i);
-        		}
-        	}
-        	
-        	//Adding Child nodes
-        	for(int k : edges.keySet()) {
-        		((TreeNode) nodes.get(edges.get(k))).addChild(nodes.get(k));
-        	}
-        	
-        	return nodes.get(0);
+            //Taking number of Nodes
+            int n = s.nextInt();
+            s.nextLine();
+            nodes = new ArrayList<>(n);
+            nodeValues = new ArrayList<>(n);
+            colorValues = new ArrayList<>(n);
+            
+            //Taking node values
+            String[] values = s.nextLine().split("\\s");
+            for(int i = 0; i < values.length; i++) {
+                nodeValues.add(Integer.parseInt(values[i]));
+            }
+            
+            //Taking node colors
+            String[] colors = s.nextLine().split("\\s");
+            for(int i = 0; i < colors.length; i++) {
+                colorValues.add((Integer.parseInt(colors[i]) == 0) ? Color.RED : Color.GREEN);
+            }
+            
+            //Taking Edges
+            edges = new HashMap<>(n - 1);
+            for(int j = 0; j < n - 1; j++) {
+                int parent = s.nextInt() - 1;
+                int child = s.nextInt() - 1;
+                if(edges.containsKey(child)) {
+                    edges.put(parent, child);
+                } else {
+                    edges.put(child, parent);
+                }
+            }
+//            Set<Integer> childrens = new HashSet<>();
+//            for(int j = 0; j < n - 1; j++) {
+//            	int parent = s.nextInt() - 1;
+//                int child = s.nextInt() - 1;
+//                if(childrens.contains(child)) {
+//                	childrens.remove(child);
+//                	int temp = parent;
+//                	parent = child;
+//                	child = temp;
+//                }
+//                Set<Integer> children = pcRelation.get(parent);
+//                if(children == null) {
+//                	children = new HashSet<>();
+//                	pcRelation.put(parent, children);
+//                }
+//                children.add(child);
+//                childrens.add(child);
+//            }
+            
+            //Adding TreeNodes
+            //Adding First TreeNode
+            nodes.add(new TreeNode(nodeValues.get(0), colorValues.get(0), 0));
+            //Initializing list with nulls
+            for(int i = 1; i < n; i++) {
+                nodes.add(null);
+            }
+            for(int i = 1; i < n; i++) {
+                if(nodes.get(i) == null) {
+                    createNode(i);
+                }
+            }
+            
+            //Adding Child nodes
+            for(int k : edges.keySet()) {
+                ((TreeNode) nodes.get(edges.get(k))).addChild(nodes.get(k));
+            }
+            
+            return nodes.get(0);
         }
     }
     
     private static void createNode(int index) {
-    	int value = nodeValues.get(index);
-		Color color = colorValues.get(index);
-		int depth = 0;
-		int parentIndex = edges.get(index);
+        int value = nodeValues.get(index);
+        Color color = colorValues.get(index);
+        int depth = 0;
+        int parentIndex = 0;
+        try {
+        	parentIndex = edges.get(index);
+        } catch(Exception e) {
+        	System.out.println(index);
+        }
 		if(nodes.get(parentIndex) == null) {
-			createNode(parentIndex);
-			depth = nodes.get(parentIndex).getDepth() + 1;
-		} else {
-			depth = nodes.get(parentIndex).getDepth() + 1;
-		}
-    	
-    	//If the current node has child i.e. if it is a parent node
-		//Then it should be a tree node. else it should be a leaf node
-		if(edges.containsValue(index)) {
-			TreeNode node = new TreeNode(value, color, depth);
-			nodes.set(index, node);
-		} else {
-			nodes.set(index, new TreeLeaf(value, color, depth));
-		}
+            createNode(parentIndex);
+            depth = nodes.get(parentIndex).getDepth() + 1;
+        } else {
+            depth = nodes.get(parentIndex).getDepth() + 1;
+        }
+        
+        //If the current node has child i.e. if it is a parent node
+        //Then it should be a tree node. else it should be a leaf node
+        if(edges.containsValue(index)) {
+            TreeNode node = new TreeNode(value, color, depth);
+            nodes.set(index, node);
+        } else {
+            nodes.set(index, new TreeLeaf(value, color, depth));
+        }
     }
     
     public static void main(String[] args) {
