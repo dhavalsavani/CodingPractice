@@ -1,8 +1,12 @@
 package challenges.hackerrank.algorithm;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 /**
  * You will be given two arrays of integers and asked to determine all integers that satisfy the following two conditions:
@@ -53,10 +57,29 @@ public class BetweenTwoSets {
 	/*
      * Complete the getTotalX function below.
      */
-    static int getTotalX(int[] a, int[] b) {
+    static int getTotalX(List<Integer> a, List<Integer> b) {
     	int count = 0;
-    	for(int i = 0; i <= Arrays.stream(b).min().getAsInt(); i++) {
+    	
+    	//Getting numbers which has factors in array a
+    	int limit = b.stream().min(Integer::compareTo).get();
+    	for(int i = 1; i <= limit; i++) {
+    		boolean flag = true;
     		
+    		//Checking if divisible with all a nums
+    		for(int num : a) {
+    			if(i % num != 0)
+    				flag = false;
+    		}
+    		
+    		//Checking if divisible with all b nums
+    		for(int num : b) {
+    			if(num % i != 0)
+    				flag = false;
+    		}
+    		
+    		//Checking if all divisible
+    		if(flag)
+    			count++;
     	}
     	return count;
     }
@@ -88,7 +111,8 @@ public class BetweenTwoSets {
             b[bItr] = bItem;
         }
 
-        int total = getTotalX(a, b);
+        int total = getTotalX(Arrays.stream(a).map(num -> new Integer(num)).boxed().collect(Collectors.toList()), 
+        		Arrays.stream(b).map(num -> new Integer(num)).boxed().collect(Collectors.toList()));
         System.out.println(total);
     }
 }
